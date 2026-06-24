@@ -18,7 +18,7 @@ function AccordionPanel({ id, content, hidden }: { id: string; content: string; 
       id={id}
       role="region"
       hidden={hidden}
-      className="px-5 pb-4 whitespace-pre-line text-sm leading-relaxed text-muted"
+      className="px-4 pb-4 text-ui-sm leading-relaxed text-muted whitespace-pre-line sm:px-5 sm:text-ui-base"
     >
       {content}
     </div>
@@ -40,7 +40,7 @@ export default function Accordion({ items }: AccordionProps) {
             <button
               type="button"
               onClick={() => setOpenId(isOpen ? null : item.id)}
-              className="flex min-h-12 w-full items-center justify-between gap-4 px-5 py-4 text-left font-medium text-foreground transition-colors hover:bg-surface/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+              className="flex min-h-[3.25rem] w-full items-center justify-between gap-4 px-4 py-4 text-left text-ui-base font-medium text-foreground transition-colors active:bg-surface/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent sm:px-5"
               aria-expanded={isOpen}
               aria-controls={panelId}
             >

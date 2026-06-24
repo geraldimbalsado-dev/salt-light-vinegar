@@ -3,11 +3,8 @@ import ProductGallery from '@/components/product/ProductGallery'
 
 export default function GallerySection() {
   return (
-    <section
-      aria-label="Product photos"
-      className="border-y border-border bg-surface/30 py-10 sm:py-12"
-    >
-      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+    <section aria-label="Product photos" className="py-10 sm:py-12">
+      <div className="mx-auto w-full max-w-[min(100%,624px)] px-4 sm:px-6">
         <div className="mb-5 sm:mb-6">
           <h2 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
             On the table

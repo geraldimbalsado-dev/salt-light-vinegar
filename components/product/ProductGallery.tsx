@@ -1,12 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import type { ProductConfig } from '@/config/product.config'
 
 type ProductGalleryProps = {
   images: ProductConfig['product']['images']
   showcase?: boolean
+  compact?: boolean
 }
 
 function ChevronLeft() {
@@ -45,13 +46,19 @@ function ChevronRight() {
   )
 }
 
-export default function ProductGallery({ images, showcase = false }: ProductGalleryProps) {
+export default function ProductGallery({
+  images,
+  showcase = false,
+  compact = false,
+}: ProductGalleryProps) {
+  const baseId = useId()
   const [activeIndex, setActiveIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
   const touchStartX = useRef<number | null>(null)
-  const viewportRef = useRef<HTMLDivElement>(null)
-  const [viewportWidth, setViewportWidth] = useState(0)
+
+  const activeImage = images[activeIndex] ?? images[0]
+  const panelId = `${baseId}-panel`
 
   const goTo = useCallback(
     (index: number) => {
@@ -81,23 +88,6 @@ export default function ProductGallery({ images, showcase = false }: ProductGall
     return () => clearInterval(interval)
   }, [images.length, isPaused, prefersReducedMotion])
 
-  useEffect(() => {
-    const viewport = viewportRef.current
-    if (!viewport) return
-
-    const updateWidth = () => setViewportWidth(viewport.offsetWidth)
-    updateWidth()
-
-    const observer = new ResizeObserver(updateWidth)
-    observer.observe(viewport)
-    return () => observer.disconnect()
-  }, [])
-
-  const mainAspect = showcase ? 'aspect-[13/11]' : 'aspect-[4/5]'
-  const mainImageFit = showcase ? 'object-contain' : 'object-cover'
-  const slideWidth = viewportWidth > 0 ? viewportWidth : undefined
-  const translateX = slideWidth ? activeIndex * slideWidth : 0
-
   const handleTouchStart = (event: React.TouchEvent) => {
     touchStartX.current = event.touches[0].clientX
   }
@@ -114,8 +104,22 @@ export default function ProductGallery({ images, showcase = false }: ProductGall
     touchStartX.current = null
   }
 
+  const frameClass = compact
+    ? 'relative aspect-[5/4] max-h-[min(56vw,15.5rem)] overflow-hidden rounded-2xl bg-surface sm:max-h-none sm:aspect-[624/552]'
+    : showcase
+      ? 'relative aspect-[624/552] overflow-hidden rounded-2xl bg-surface'
+      : 'relative aspect-[5/4] overflow-hidden rounded-2xl bg-surface sm:aspect-[4/5]'
+
+  const thumbSize = compact
+    ? 'h-12 w-12 sm:h-16 sm:w-16'
+    : 'h-14 w-14 sm:h-16 sm:w-16'
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2.5 sm:gap-3">
+      {compact && (
+        <p className="text-ui-sm text-muted">On the table — swipe to see more pairings</p>
+      )}
+
       <div
         className="group relative"
         onMouseEnter={() => setIsPaused(true)}
@@ -128,43 +132,36 @@ export default function ProductGallery({ images, showcase = false }: ProductGall
         }}
       >
         <div
-          ref={viewportRef}
-          className={`overflow-hidden rounded-2xl bg-surface ${mainAspect} w-full`}
+          className={frameClass}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           aria-roledescription="carousel"
           aria-label="Product photos"
         >
-          <div
-            className={`flex h-full ${prefersReducedMotion ? '' : 'transition-transform duration-500 ease-out'}`}
-            style={{ transform: `translateX(-${translateX}px)` }}
-          >
-            {images.map((image, index) => (
-              <div
-                key={image.src}
-                className="relative h-full shrink-0"
-                style={{ width: slideWidth ?? '100%' }}
-                aria-hidden={index !== activeIndex}
-              >
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  priority={index === 0}
-                  sizes="(max-width: 1024px) 100vw, 80vw"
-                  className={mainImageFit}
-                />
-              </div>
-            ))}
-          </div>
+          <Image
+            key={activeImage.src}
+            id={panelId}
+            role="tabpanel"
+            aria-label={activeImage.alt}
+            src={activeImage.src}
+            alt={activeImage.alt}
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className={showcase || compact ? 'object-contain' : 'object-cover'}
+            priority={compact}
+          />
         </div>
+
+        <p className="sr-only" aria-live="polite" aria-atomic="true">
+          Image {activeIndex + 1} of {images.length}: {activeImage.alt}
+        </p>
 
         {images.length > 1 && (
           <>
             <button
               type="button"
               onClick={goPrev}
-              className="absolute top-1/2 left-2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-sm backdrop-blur-sm hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:left-3 lg:h-11 lg:w-11 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100"
+              className="absolute top-1/2 left-2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-sm backdrop-blur-sm active:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:left-3 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100"
               aria-label="Previous image"
             >
               <ChevronLeft />
@@ -172,44 +169,55 @@ export default function ProductGallery({ images, showcase = false }: ProductGall
             <button
               type="button"
               onClick={goNext}
-              className="absolute top-1/2 right-2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-sm backdrop-blur-sm hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:right-3 lg:h-11 lg:w-11 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100"
+              className="absolute top-1/2 right-2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-sm backdrop-blur-sm active:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:right-3 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100"
               aria-label="Next image"
             >
               <ChevronRight />
             </button>
+            <p
+              className="absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/50 px-2.5 py-0.5 text-ui-xs font-medium text-white backdrop-blur-sm lg:hidden"
+              aria-hidden
+            >
+              {activeIndex + 1} / {images.length}
+            </p>
           </>
         )}
       </div>
 
       {images.length > 1 && (
         <div
-          className="flex gap-2 overflow-x-auto pb-0.5"
+          className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           role="tablist"
           aria-label="Choose product photo"
         >
-          {images.map((image, index) => (
-            <button
-              key={image.src}
-              type="button"
-              role="tab"
-              onClick={() => setActiveIndex(index)}
-              className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-16 sm:w-16 ${
-                index === activeIndex
-                  ? 'border-accent'
-                  : 'border-border hover:border-accent/50'
-              }`}
-              aria-label={`Photo ${index + 1}: ${image.alt}`}
-              aria-selected={index === activeIndex}
-            >
-              <Image
-                src={image.src}
-                alt=""
-                fill
-                sizes="64px"
-                className="object-cover"
-              />
-            </button>
-          ))}
+          {images.map((image, index) => {
+            const tabId = `${baseId}-tab-${index}`
+            return (
+              <button
+                key={image.src}
+                id={tabId}
+                type="button"
+                role="tab"
+                onClick={() => setActiveIndex(index)}
+                className={`relative shrink-0 overflow-hidden rounded-lg border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${thumbSize} ${
+                  index === activeIndex
+                    ? 'border-accent'
+                    : 'border-border active:border-accent/50'
+                }`}
+                aria-label={`Photo ${index + 1}: ${image.alt}`}
+                aria-selected={index === activeIndex}
+                aria-controls={panelId}
+              >
+                <Image
+                  src={image.src}
+                  alt=""
+                  fill
+                  sizes="64px"
+                  className="object-cover"
+                />
+              </button>
+            )
+          })}
         </div>
       )}
     </div>

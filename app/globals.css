@@ -12,7 +12,15 @@
   --muted: #6b5344;
   --border: #e0d4c4;
   --card: #fffdf9;
-  --header-offset: 4.5rem;
+  --messenger: #0084ff;
+  --messenger-hover: #0073e6;
+  --header-offset: calc(3.75rem + env(safe-area-inset-top, 0px));
+  --sticky-bar-offset: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  --content-max: 72rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
 }
 
 @theme inline {
@@ -27,8 +35,18 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-card: var(--card);
+  --color-messenger: var(--messenger);
+  --color-messenger-hover: var(--messenger-hover);
   --font-sans: var(--font-dm-sans);
   --font-display: var(--font-fraunces);
+  --text-ui-xs: 0.75rem;
+  --text-ui-sm: 0.875rem;
+  --text-ui-base: 1rem;
+  --text-ui-lg: 1.125rem;
+  --text-ui-xl: 1.5rem;
+  --text-ui-2xl: 1.875rem;
+  --text-ui-3xl: 2.25rem;
+  --text-ui-4xl: 2.5rem;
 }
 
 html {
@@ -45,6 +63,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-dm-sans), system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 h1,
@@ -54,8 +73,28 @@ h4 {
   font-family: var(--font-fraunces), Georgia, serif;
 }
 
+.section-shell {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--content-max);
+  padding-inline: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+@media (min-width: 640px) {
+  .section-shell {
+    padding-inline: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+  }
+}
+
 .scroll-target {
   scroll-margin-top: var(--header-offset);
+}
+
+.scroll-target-checkout {
+  scroll-margin-top: var(--header-offset);
+  scroll-margin-bottom: var(--sticky-bar-offset);
 }
 
 @keyframes fade-in {
@@ -87,5 +126,22 @@ h4 {
 @media (prefers-reduced-motion: no-preference) {
   .hero-fade-in {
     animation: hero-fade-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+.bundle-scroll-fade {
+  position: relative;
+}
+
+@media (max-width: 639px) {
+  .bundle-scroll-fade::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0.25rem;
+    width: 2.5rem;
+    pointer-events: none;
+    background: linear-gradient(to left, var(--background), transparent);
   }
 }

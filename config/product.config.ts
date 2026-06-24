@@ -49,7 +49,7 @@ export type ProductConfig = {
     address: string
     deliveryNote: string
   }
-  sectionOrder: ('product' | 'gallery' | 'details' | 'testimonials')[]
+  sectionOrder: ('product' | 'details' | 'testimonials')[]
 }
 
 const BOTTLE_SIZE_ML = 350
@@ -67,6 +67,7 @@ const productConfig: ProductConfig = {
     description:
       'Small-batch spiced coconut sap vinegar made in Buenavista, Agusan del Norte. Choose Solo, Duo, or Family bundles and order via Messenger.',
     canonicalUrl: 'https://eirenesuka.com',
+    ogImage: '/images/vinegar-img-hero.png',
   },
   hero: {
     headline: 'Taste Buenavista in every drop',
@@ -132,10 +133,10 @@ const productConfig: ProductConfig = {
     },
   ],
   trust: [
-    { icon: '🌴', label: 'Made in Buenavista' },
-    { icon: '🥥', label: '100% coconut nectar' },
-    { icon: '🚚', label: 'Ships in 2–3 days' },
-    { icon: '♻️', label: 'Small-batch crafted' },
+    { icon: 'origin', label: 'Made in Buenavista' },
+    { icon: 'natural', label: '100% coconut nectar' },
+    { icon: 'shipping', label: 'Nationwide in 3–5 days' },
+    { icon: 'batch', label: 'Small-batch crafted' },
   ],
   details: [
     {
@@ -190,14 +191,15 @@ const productConfig: ProductConfig = {
     },
   ],
   contact: {
-    messengerUrl: 'https://m.me/your-page',
     email: 'hello@saltlight.com',
     phone: '+63 917 123 4567',
     address: 'Buenavista, Agusan del Norte, Philippines',
     deliveryNote:
-      'We deliver within Buenavista and nearby towns in 1–2 days. Nationwide shipping in 3–5 days.',
+      'Local delivery in Buenavista and nearby towns (1–2 days). Nationwide shipping in 3–5 days.',
+    // Replace with your Facebook Page username before launch:
+    messengerUrl: 'https://m.me/your-page',
   },
-  sectionOrder: ['product', 'gallery', 'testimonials', 'details'],
+  sectionOrder: ['product', 'details', 'testimonials'],
 }
 
 export default productConfig

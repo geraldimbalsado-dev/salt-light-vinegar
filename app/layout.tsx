@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Fraunces, DM_Sans } from 'next/font/google'
 import productConfig from '@/config/product.config'
 import { buildLocalBusinessSchema, buildProductSchema } from '@/lib/seo'
@@ -18,6 +18,12 @@ const dmSans = DM_Sans({
   variable: '--font-dm-sans',
   weight: ['400', '500', '600', '700'],
 })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: productConfig.brand.primaryColor,
+}
 
 export const metadata: Metadata = {
   title: productConfig.meta.title,
@@ -53,8 +59,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${dmSans.variable}`}>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content={productConfig.brand.primaryColor} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
